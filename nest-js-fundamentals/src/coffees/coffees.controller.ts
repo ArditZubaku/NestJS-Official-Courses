@@ -55,7 +55,7 @@ export class CoffeesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     // return `This deletes the ${id} in the database`;
     return this.coffeesService.remove(id);
   }
