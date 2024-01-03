@@ -13,7 +13,9 @@ export class CoffeesService {
   ) {}
 
   findAll() {
-    return this.coffeeRepository.find();
+    return this.coffeeRepository.find({
+      relations: ['flavours'],
+    });
   }
 
   async findOne(id: number) {
@@ -21,6 +23,7 @@ export class CoffeesService {
       where: {
         id,
       },
+      relations: ['flavours'],
     });
 
     if (!coffee) {
