@@ -10,6 +10,10 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      transformOptions: {
+        // Converts property to TS declared types
+        enableImplicitConversion: true,
+      },
     }),
   );
   await app.listen(3000);

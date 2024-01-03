@@ -12,6 +12,7 @@ import {
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto.ts/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto/update-coffee.dto';
+import { PaginationQueryDTO } from '../../common/dto/pagination-query.dto/pagination-query.dto';
 
 @Controller('coffees')
 export class CoffeesController {
@@ -21,11 +22,11 @@ export class CoffeesController {
   //   findAll(@Res() response) {
   //     response.status(200).send('Returns all');
   //   }
-  findAll(@Query() paginationQuery) {
+  findAll(@Query() paginationQuery: PaginationQueryDTO) {
     console.log(paginationQuery);
     // const { limit, offset } = paginationQuery;
     // return 'Returns all where. Limit is ' + limit + ' and offset is ' + offset;
-    return this.coffeesService.findAll();
+    return this.coffeesService.findAll(paginationQuery);
   }
 
   @Get(':id')
