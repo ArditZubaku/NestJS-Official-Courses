@@ -7,7 +7,7 @@ import { Flavour } from './entities/flavour.entity';
 
 @Module({
   // Registering entities
-  imports: [TypeOrmModule.forFeature([Coffee, Flavour])],
+  imports: [TypeOrmModule.forFeature([Coffee, Flavour, Event])],
   controllers: [CoffeesController],
   providers: [CoffeesService],
 })
