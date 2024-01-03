@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Flavour } from './flavour.entity';
 
-@Index(['name', 'type'])
+@Index(['name', 'brand'])
 @Entity()
 export class Coffee {
   @PrimaryGeneratedColumn()
@@ -20,6 +20,12 @@ export class Coffee {
 
   @Column()
   brand: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column({ default: 0 })
+  test: number;
 
   @Column({ default: 0 })
   recommendations: number;

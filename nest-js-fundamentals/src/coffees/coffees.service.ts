@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Flavour } from './entities/flavour.entity';
 import { PaginationQueryDTO } from '../../common/dto/pagination-query.dto/pagination-query.dto';
-import { Event } from './../../events/entities/event.entity';
+import { Event } from '../../common/events/entities/event.entity';
 
 @Injectable()
 export class CoffeesService {
