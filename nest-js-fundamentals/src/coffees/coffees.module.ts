@@ -1,4 +1,4 @@
-import { Injectable, Module } from '@nestjs/common';
+import { Injectable, Module, Scope } from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
 import { CoffeesController } from './coffees.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -69,6 +69,7 @@ export class CoffeeBrandsFactory {
         return coffeeBrands;
       },
       inject: [DataSource],
+      scope: Scope.TRANSIENT,
     },
     {
       provide: ConfigService,
