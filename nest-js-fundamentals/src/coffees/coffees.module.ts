@@ -23,6 +23,10 @@ import { COFFEE_BRANDS } from './coffees.constants';
 //   }
 // }
 
+class ConfigService {}
+class DevConfigService {}
+class ProdConfigService {}
+
 @Module({
   // Registering entities
   imports: [TypeOrmModule.forFeature([Coffee, Flavour, Event])],
@@ -36,6 +40,13 @@ import { COFFEE_BRANDS } from './coffees.constants';
     {
       provide: COFFEE_BRANDS,
       useValue: ['buddy brew', 'nescafe'],
+    },
+    {
+      provide: ConfigService,
+      useClass:
+        process.env.NODE_ENV === 'development'
+          ? DevConfigService
+          : ProdConfigService,
     },
   ],
   exports: [CoffeesService],
