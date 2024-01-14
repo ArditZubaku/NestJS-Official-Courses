@@ -5,6 +5,23 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Coffee } from './entities/coffee.entity';
 import { Flavour } from './entities/flavour.entity';
 
+class MockCoffeesService {
+  private coffees = [];
+
+  async find(options) {
+    return this.coffees;
+  }
+
+  async findOne(id: number) {
+    return this.coffees.find((coffee) => coffee.id === id);
+  }
+
+  async save(createCoffeeDTO) {
+    this.coffees.push(createCoffeeDTO);
+    return createCoffeeDTO;
+  }
+}
+
 @Module({
   // Registering entities
   imports: [TypeOrmModule.forFeature([Coffee, Flavour, Event])],
@@ -12,7 +29,7 @@ import { Flavour } from './entities/flavour.entity';
   providers: [
     {
       provide: CoffeesService,
-      useClass: CoffeesService,
+      useValue: new MockCoffeesService(),
     },
   ],
   exports: [CoffeesService],
