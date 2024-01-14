@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Coffee } from './entities/coffee.entity';
 import { Flavour } from './entities/flavour.entity';
 import { COFFEE_BRANDS } from './coffees.constants';
+import { DataSource } from 'typeorm';
 
 // class MockCoffeesService {
 //   private coffees = [];
@@ -49,14 +50,25 @@ export class CoffeeBrandsFactory {
     //   useValue: ['buddy brew', 'nescafe'],
     // },
     CoffeeBrandsFactory,
+    // {
+    //   provide: COFFEE_BRANDS,
+    //   useFactory: (coffeeBrandsFactory: CoffeeBrandsFactory) => [
+    //     'buddy brew',
+    //     'nescafe',
+    //     ...coffeeBrandsFactory.create(),
+    //   ],
+    //   inject: [CoffeeBrandsFactory],
+    // },
     {
       provide: COFFEE_BRANDS,
-      useFactory: (coffeeBrandsFactory: CoffeeBrandsFactory) => [
-        'buddy brew',
-        'nescafe',
-        ...coffeeBrandsFactory.create(),
-      ],
-      inject: [CoffeeBrandsFactory],
+      useFactory: async (connection: DataSource): Promise<string[]> => {
+        const test = await connection.query('SELECT * FROM coffee');
+        console.log(test);
+        const coffeeBrands = await Promise.resolve(['buddy brew', 'nescafe']);
+        console.log('[!] Async factory');
+        return coffeeBrands;
+      },
+      inject: [DataSource],
     },
     {
       provide: ConfigService,
