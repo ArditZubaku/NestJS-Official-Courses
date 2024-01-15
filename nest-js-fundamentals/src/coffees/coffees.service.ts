@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Coffee } from './entities/coffee.entity';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto.ts/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto/update-coffee.dto';
@@ -9,9 +9,11 @@ import { PaginationQueryDTO } from '../common/dto/pagination-query.dto/paginatio
 import { Event } from '../common/events/entities/event.entity';
 import { COFFEE_BRANDS } from './coffees.constants';
 import { log } from 'console';
+import { ConfigService } from '@nestjs/config';
 
 // @Injectable({ scope: Scope.TRANSIENT })
-@Injectable({ scope: Scope.REQUEST })
+// @Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CoffeesService {
   constructor(
     @InjectRepository(Coffee)
@@ -20,7 +22,13 @@ export class CoffeesService {
     private readonly flavourRepository: Repository<Flavour>,
     private readonly connection: DataSource,
     @Inject(COFFEE_BRANDS) coffeeBrands: string[],
+    private readonly configService: ConfigService,
   ) {
+    log(this.configService.getOrThrow<string>('DATABASE_HOST'));
+    // Generic type declared only if you want to use the chaining methods
+    log(this.configService.getOrThrow<number>('DATABASE_HOST'));
+    log(this.configService.getOrThrow<string>('DATABASE_PORT', '5222'));
+
     log(coffeeBrands);
     log('CoffeesService instantiated');
   }

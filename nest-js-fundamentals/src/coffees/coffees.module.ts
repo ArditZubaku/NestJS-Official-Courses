@@ -6,6 +6,7 @@ import { Coffee } from './entities/coffee.entity';
 import { Flavour } from './entities/flavour.entity';
 import { COFFEE_BRANDS } from './coffees.constants';
 import { DataSource } from 'typeorm';
+import { ConfigModule } from '@nestjs/config';
 
 // class MockCoffeesService {
 //   private coffees = [];
@@ -37,7 +38,7 @@ export class CoffeeBrandsFactory {
 
 @Module({
   // Registering entities
-  imports: [TypeOrmModule.forFeature([Coffee, Flavour, Event])],
+  imports: [TypeOrmModule.forFeature([Coffee, Flavour, Event]), ConfigModule],
   controllers: [CoffeesController],
   providers: [
     // {
