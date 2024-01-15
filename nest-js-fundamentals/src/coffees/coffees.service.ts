@@ -24,7 +24,7 @@ export class CoffeesService {
     @Inject(COFFEE_BRANDS) coffeeBrands: string[],
     private readonly configService: ConfigService,
   ) {
-    log(this.configService.getOrThrow<string>('DATABASE_HOST'));
+    log(this.configService.getOrThrow<string>('database.host'));
     // Generic type declared only if you want to use the chaining methods
     log(this.configService.getOrThrow<number>('DATABASE_HOST'));
     log(this.configService.getOrThrow<string>('DATABASE_PORT', '5222'));
