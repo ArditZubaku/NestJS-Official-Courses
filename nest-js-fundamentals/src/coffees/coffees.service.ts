@@ -9,7 +9,8 @@ import { PaginationQueryDTO } from '../common/dto/pagination-query.dto/paginatio
 import { Event } from '../common/events/entities/event.entity';
 import { COFFEE_BRANDS } from './coffees.constants';
 import { log } from 'console';
-import { ConfigService } from '@nestjs/config';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import coffeesConfig from './config/coffees.config';
 
 // @Injectable({ scope: Scope.TRANSIENT })
 // @Injectable({ scope: Scope.REQUEST })
@@ -23,8 +24,14 @@ export class CoffeesService {
     private readonly connection: DataSource,
     @Inject(COFFEE_BRANDS) coffeeBrands: string[],
     private readonly configService: ConfigService,
+    // Best practice to use partial registration
+    @Inject(coffeesConfig.KEY)
+    private readonly coffeesConfiguration: ConfigType<typeof coffeesConfig>,
   ) {
-    log(this.configService.getOrThrow<string>('database.host'));
+    // const coffeesConfig = this.configService.getOrThrow('coffees');
+
+    log(coffeesConfiguration.foo);
+
     // Generic type declared only if you want to use the chaining methods
     log(this.configService.getOrThrow<number>('DATABASE_HOST'));
     log(this.configService.getOrThrow<string>('DATABASE_PORT', '5222'));
