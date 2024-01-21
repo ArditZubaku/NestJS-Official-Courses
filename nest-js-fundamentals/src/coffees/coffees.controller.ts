@@ -19,6 +19,7 @@ import { PaginationQueryDTO } from '../common/dto/pagination-query.dto/paginatio
 import { log } from 'console';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { Public } from '../common/decorators/public/public.decorator';
 
 // UsePipes(ValidationPipe) -> this is a local pipe, only for this controller
 // Use classes instead of instances whenever possible, since Nest will take care of the instantiation and provide the singleton if that is already instantiated.
@@ -37,6 +38,8 @@ export class CoffeesController {
     log('CoffeesController instantiated');
   }
 
+  // @SetMetadata('isPublic', true)
+  @Public()
   @UsePipes(ValidationPipe)
   @Get('flavours')
   //   findAll(@Res() response) {
