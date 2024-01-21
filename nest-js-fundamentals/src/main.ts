@@ -21,6 +21,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+  // app.useGlobalGuards(new ApiKeyGuard(app.get(ConfigService)));
   // await app.listen(3000);
   await app.listen(configService.getOrThrow('PORT'));
   log(

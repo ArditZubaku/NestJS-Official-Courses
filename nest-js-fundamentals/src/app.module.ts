@@ -8,8 +8,9 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import appConfig from './config/app.config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
+import { ApiKeyGuard } from './common/guards/api-key/api-key.guard';
 
 @Module({
   imports: [
@@ -64,6 +65,10 @@ import { HttpExceptionFilter } from './common/filters/http-exception/http-except
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
     },
   ],
 })
