@@ -9,6 +9,8 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto.ts/create-coffee.dto';
@@ -18,6 +20,10 @@ import { log } from 'console';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
+// UsePipes(ValidationPipe) -> this is a local pipe, only for this controller
+// Use classes instead of instances whenever possible, since Nest will take care of the instantiation and provide the singleton if that is already instantiated.
+// Use instances only when you need to pass some configuration to the class.
+@UsePipes(ValidationPipe)
 @Controller('coffees')
 export class CoffeesController {
   constructor(
@@ -31,6 +37,7 @@ export class CoffeesController {
     log('CoffeesController instantiated');
   }
 
+  @UsePipes(ValidationPipe)
   @Get('flavours')
   //   findAll(@Res() response) {
   //     response.status(200).send('Returns all');
@@ -52,7 +59,7 @@ export class CoffeesController {
 
   @Post()
   //   @HttpCode(HttpStatus.GONE)
-  create(@Body() body: CreateCoffeeDTO) {
+  create(@Body(ValidationPipe) body: CreateCoffeeDTO) {
     // return body;
     console.log(body instanceof CreateCoffeeDTO);
     console.log(body);
