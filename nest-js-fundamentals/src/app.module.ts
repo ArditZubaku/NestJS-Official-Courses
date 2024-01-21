@@ -8,10 +8,13 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import appConfig from './config/app.config';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         // type: 'postgres',
@@ -43,6 +46,7 @@ import appConfig from './config/app.config';
     CoffeesModule,
     CoffeeRatingModule,
     DatabaseModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [
@@ -52,6 +56,15 @@ import appConfig from './config/app.config';
     //   provide: APP_PIPE,
     //   useClass: ValidationPipe,
     // },
+
+    // This way the filter is managed by NestJS's dependency injection system, which means it can have dependencies injected into it.
+    /*
+    If you need to use dependency injection in your filter, use provide: APP_FILTER. If not, you can use app.useGlobalFilters().
+     */
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
