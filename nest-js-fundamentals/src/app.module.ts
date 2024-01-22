@@ -8,16 +8,16 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import appConfig from './config/app.config';
-import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
 import { CommonModule } from './common/common.module';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         // type: 'postgres',
         // host: process.env.DATABASE_HOST,
         // port: +process.env.DATABASE_PORT, // + is for type conversion to number

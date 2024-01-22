@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { log } from 'console';
 import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
+import { WrapResponseInterceptor } from './common/interceptors/wrap-response/wrap-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new WrapResponseInterceptor());
   // app.useGlobalGuards(new ApiKeyGuard(app.get(ConfigService)));
   // await app.listen(3000);
   await app.listen(configService.getOrThrow('PORT'));
