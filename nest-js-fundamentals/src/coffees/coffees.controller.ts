@@ -17,6 +17,7 @@ import { Public, PaginationQueryDTO, ParseIntPipe } from '../common';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
+import { Protocol } from '../common/decorators/protocol.decorator';
 
 // Use instances only when you need to pass some configuration to the class.
 // UsePipes(ValidationPipe) -> this is a local pipe, only for this controller
@@ -42,8 +43,12 @@ export class CoffeesController {
   //   findAll(@Res() response) {
   //     response.status(200).send('Returns all');
   //   }
-  async findAll(@Query() paginationQuery: PaginationQueryDTO) {
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+  async findAll(
+    @Protocol('https') protocol: string,
+    @Query() paginationQuery: PaginationQueryDTO,
+  ) {
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
+    console.log(protocol);
 
     console.log(paginationQuery);
     // const { limit, offset } = paginationQuery;
