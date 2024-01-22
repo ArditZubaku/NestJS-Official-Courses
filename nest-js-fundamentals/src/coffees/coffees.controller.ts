@@ -9,12 +9,11 @@ import {
   Post,
   Body,
   Patch,
-  ParseIntPipe,
   Delete,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { log } from 'console';
-import { Public, PaginationQueryDTO } from '../common';
+import { Public, PaginationQueryDTO, ParseIntPipe } from '../common';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
@@ -54,7 +53,7 @@ export class CoffeesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     // return 'Returns one' + id;
     console.log('findOne', typeof id);
     return this.coffeesService.findOne(id);

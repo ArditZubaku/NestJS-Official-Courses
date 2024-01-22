@@ -1,7 +1,8 @@
 @host=http://localhost:3000
 
 ###
-GET {{host}}/coffees/flavours/-1 HTTP/1.1
+GET {{host}}/coffees/abc HTTP/1.1
+Authorization: 1234567890
 
 ###
 GET {{host}}/coffees/flavours HTTP/1.1

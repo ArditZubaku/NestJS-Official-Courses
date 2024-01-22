@@ -7,3 +7,4 @@ export * from './filters/http-exception.filter';
 export * from './guards/api-key.guard';
 export * from './interceptors/timeout.interceptor';
 export * from './interceptors/wrap-response.interceptor';
+export * from './pipes/parse-int.pipe';
