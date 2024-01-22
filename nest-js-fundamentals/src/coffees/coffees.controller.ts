@@ -43,7 +43,9 @@ export class CoffeesController {
   //   findAll(@Res() response) {
   //     response.status(200).send('Returns all');
   //   }
-  findAll(@Query() paginationQuery: PaginationQueryDTO) {
+  async findAll(@Query() paginationQuery: PaginationQueryDTO) {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
     console.log(paginationQuery);
     // const { limit, offset } = paginationQuery;
     // return 'Returns all where. Limit is ' + limit + ' and offset is ' + offset;
