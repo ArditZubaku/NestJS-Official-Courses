@@ -1,29 +1,27 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Inject,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
   UsePipes,
   ValidationPipe,
+  Controller,
+  Inject,
+  Get,
+  Query,
+  Param,
+  Post,
+  Body,
+  Patch,
+  ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
-import { CoffeesService } from './coffees.service';
-import { CreateCoffeeDTO } from './dto/create-coffee.dto.ts/create-coffee.dto';
-import { UpdateCoffeeDTO } from './dto/update-coffee.dto/update-coffee.dto';
-import { PaginationQueryDTO } from '../common/dto/pagination-query.dto/pagination-query.dto';
-import { log } from 'console';
 import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
-import { Public } from '../common/decorators/public/public.decorator';
+import { log } from 'console';
+import { Public, PaginationQueryDTO } from '../common';
+import { CoffeesService } from './coffees.service';
+import { CreateCoffeeDTO } from './dto/create-coffee.dto';
+import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
 
+// Use instances only when you need to pass some configuration to the class.
 // UsePipes(ValidationPipe) -> this is a local pipe, only for this controller
 // Use classes instead of instances whenever possible, since Nest will take care of the instantiation and provide the singleton if that is already instantiated.
-// Use instances only when you need to pass some configuration to the class.
 @UsePipes(ValidationPipe)
 @Controller('coffees')
 export class CoffeesController {

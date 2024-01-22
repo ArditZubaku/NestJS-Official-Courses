@@ -13,6 +13,7 @@ export class WrapResponseInterceptor implements NestInterceptor {
 
     // Must be called or the route handler wont be executed at all
     // return next.handle().pipe(tap((data) => console.log('After...', data)));
+    // Transforming the result of the route handler (controller)
     return next.handle().pipe(map((data) => ({ data })));
   }
 }

@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CoffeesModule } from './coffees/coffees.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { CoffeeRatingModule } from './coffee-rating/coffee-rating.module';
-import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from 'joi';
-import appConfig from './config/app.config';
-import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
-import { CommonModule } from './common/common.module';
 import { APP_FILTER } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import Joi from 'joi';
+import { AppService } from './app.service';
+import { CoffeeRatingModule } from './coffee-rating/coffee-rating.module';
+import { CoffeesModule } from './coffees/coffees.module';
+import { CommonModule, HttpExceptionFilter } from './common';
+import appConfig from './config/app.config';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [

@@ -1,10 +1,13 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 import { log } from 'console';
-import { HttpExceptionFilter } from './common/filters/http-exception/http-exception.filter';
-import { WrapResponseInterceptor } from './common/interceptors/wrap-response/wrap-response.interceptor';
+import { AppModule } from './app.module';
+import {
+  HttpExceptionFilter,
+  WrapResponseInterceptor,
+  TimeoutInterceptor,
+} from './common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,7 +25,10 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new WrapResponseInterceptor());
+  app.useGlobalInterceptors(
+    new WrapResponseInterceptor(),
+    new TimeoutInterceptor(),
+  );
   // app.useGlobalGuards(new ApiKeyGuard(app.get(ConfigService)));
   // await app.listen(3000);
   await app.listen(configService.getOrThrow('PORT'));
