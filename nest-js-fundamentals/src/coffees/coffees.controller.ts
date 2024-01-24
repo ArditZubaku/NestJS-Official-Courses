@@ -19,11 +19,13 @@ import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
 import { Protocol } from '../common/decorators/protocol.decorator';
-import { ApiForbiddenResponse, ApiResponse } from '@nestjs/swagger';
+import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
 
 // Use instances only when you need to pass some configuration to the class.
 // UsePipes(ValidationPipe) -> this is a local pipe, only for this controller
 // Use classes instead of instances whenever possible, since Nest will take care of the instantiation and provide the singleton if that is already instantiated.
+
+@ApiTags('Coffees')
 @UsePipes(ValidationPipe)
 @Controller('coffees')
 export class CoffeesController {
@@ -42,6 +44,7 @@ export class CoffeesController {
   //   status: HttpStatus.FORBIDDEN,
   //   description: 'Forbidden.',
   // })
+  @ApiTags('Getter')
   @ApiForbiddenResponse({ description: 'Forbidden.' })
   // @SetMetadata('isPublic', true)
   @Public()
@@ -64,6 +67,7 @@ export class CoffeesController {
     return this.coffeesService.findAll(paginationQuery);
   }
 
+  @ApiTags('Coffees-Getter')
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     // return 'Returns one' + id;
