@@ -34,7 +34,7 @@ export class CoffeesService {
 
     // Generic type declared only if you want to use the chaining methods
     log(this.configService.getOrThrow<number>('DATABASE_HOST'));
-    log(this.configService.getOrThrow<string>('DATABASE_PORT', '5222'));
+    // log(this.configService.getOrThrow<string>('DATABASE_PORT', '5222'));
 
     log(coffeeBrands);
     log('CoffeesService instantiated');
