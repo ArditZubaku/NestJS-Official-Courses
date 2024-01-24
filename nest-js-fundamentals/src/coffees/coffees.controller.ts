@@ -10,6 +10,7 @@ import {
   Body,
   Patch,
   Delete,
+  HttpStatus,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { log } from 'console';
@@ -18,6 +19,7 @@ import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
 import { Protocol } from '../common/decorators/protocol.decorator';
+import { ApiForbiddenResponse, ApiResponse } from '@nestjs/swagger';
 
 // Use instances only when you need to pass some configuration to the class.
 // UsePipes(ValidationPipe) -> this is a local pipe, only for this controller
@@ -36,6 +38,11 @@ export class CoffeesController {
     log('CoffeesController instantiated');
   }
 
+  // @ApiResponse({
+  //   status: HttpStatus.FORBIDDEN,
+  //   description: 'Forbidden.',
+  // })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
   // @SetMetadata('isPublic', true)
   @Public()
   @UsePipes(ValidationPipe)
