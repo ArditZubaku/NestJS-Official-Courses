@@ -8,6 +8,7 @@ import {
   WrapResponseInterceptor,
   TimeoutInterceptor,
 } from './common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,6 +32,15 @@ async function bootstrap() {
   );
   // app.useGlobalGuards(new ApiKeyGuard(app.get(ConfigService)));
   // await app.listen(3000);
+
+  const options = new DocumentBuilder()
+    .setTitle('Coffees API')
+    .setDescription('Coffees API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
+
   await app.listen(configService.getOrThrow('PORT'));
   log(
     `App is listening on port ${configService.getOrThrow<number>(
