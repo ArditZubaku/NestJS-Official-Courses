@@ -8,11 +8,19 @@ import { COFFEE_BRANDS } from './coffees.constants';
 import { Coffee } from './entities/coffee.entity';
 import { Flavour } from './entities/flavour.entity';
 import coffeesConfig from './config/coffees.config';
+import { NotFoundException } from '@nestjs/common';
+
+type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+
+const createMockRepository = <T = any>(): MockRepository<T> => ({
+  findOne: jest.fn(),
+  create: jest.fn(),
+});
 
 describe('CoffeesService', () => {
   let service: CoffeesService;
-  let coffeeRepository: Repository<Coffee>;
-  let flavourRepository: Repository<Flavour>;
+  let coffeeRepository: MockRepository<Coffee>;
+  let flavourRepository: MockRepository<Flavour>;
   let connection: DataSource;
   let configService: ConfigService;
   let coffeesConfiguration: ConfigType<typeof coffeesConfig>;
@@ -22,11 +30,11 @@ describe('CoffeesService', () => {
         CoffeesService,
         {
           provide: getRepositoryToken(Coffee),
-          useValue: {},
+          useValue: createMockRepository<Coffee>(),
         },
         {
           provide: getRepositoryToken(Flavour),
-          useValue: {},
+          useValue: createMockRepository<Flavour>(),
         },
         {
           provide: DataSource,
@@ -50,10 +58,10 @@ describe('CoffeesService', () => {
     }).compile();
 
     service = moduleRef.get<CoffeesService>(CoffeesService);
-    coffeeRepository = moduleRef.get<Repository<Coffee>>(
+    coffeeRepository = moduleRef.get<MockRepository<Coffee>>(
       getRepositoryToken(Coffee),
     );
-    flavourRepository = moduleRef.get<Repository<Flavour>>(
+    flavourRepository = moduleRef.get<MockRepository<Flavour>>(
       getRepositoryToken(Flavour),
     );
     connection = moduleRef.get<DataSource>(DataSource);
@@ -65,5 +73,33 @@ describe('CoffeesService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('findOne', () => {
+    describe('when coffee with ID exists', () => {
+      it('should return the coffee object', async () => {
+        const coffeeId = '1';
+        const expectedCoffee = {};
+
+        coffeeRepository.findOne.mockReturnValue(expectedCoffee);
+        const coffee = await service.findOne(+coffeeId);
+        expect(coffee).toEqual(expectedCoffee);
+      });
+    });
+
+    describe('otherwise', () => {
+      it('should throw the "NotFoundException"', async () => {
+        const coffeeId = '1';
+
+        coffeeRepository.findOne.mockResolvedValue(undefined);
+
+        try {
+          await service.findOne(+coffeeId);
+        } catch (error) {
+          expect(error).toBeInstanceOf(NotFoundException);
+          expect(error.message).toEqual(`Coffee #${coffeeId} not found`);
+        }
+      });
+    });
   });
 });
