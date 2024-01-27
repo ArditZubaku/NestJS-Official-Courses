@@ -8,6 +8,8 @@ import { COFFEE_BRANDS } from './coffees.constants';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import coffeesConfig from './config/coffees.config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { CoffeeSchema } from './schemas/coffee.schema';
 
 // class MockCoffeesService {
 //   private coffees = [];
@@ -43,6 +45,12 @@ export class CoffeeBrandsFactory {
     TypeOrmModule.forFeature([Coffee, Flavour, Event]),
     // Partial registration - registering close to their domain
     ConfigModule.forFeature(coffeesConfig),
+    MongooseModule.forFeature([
+      {
+        name: Coffee.name,
+        schema: CoffeeSchema,
+      },
+    ]),
   ],
   controllers: [CoffeesController],
   providers: [

@@ -10,6 +10,7 @@ import { CoffeesModule } from './coffees/coffees.module';
 import { CommonModule, HttpExceptionFilter } from './common';
 import appConfig from './config/app.config';
 import { DatabaseModule } from './database/database.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
     ConfigModule,
     CommonModule,
+    MongooseModule.forRoot('mongodb://localhost:27017/nest-course'),
   ],
   controllers: [AppController],
   providers: [
