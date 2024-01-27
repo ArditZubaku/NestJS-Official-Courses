@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import coffeesConfig from './config/coffees.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CoffeeSchema } from './schemas/coffee.schema';
+import { EventSchema } from '../common/events/event.schema';
 
 // class MockCoffeesService {
 //   private coffees = [];
@@ -49,6 +50,10 @@ export class CoffeeBrandsFactory {
       {
         name: Coffee.name,
         schema: CoffeeSchema,
+      },
+      {
+        name: Event.name,
+        schema: EventSchema,
       },
     ]),
   ],

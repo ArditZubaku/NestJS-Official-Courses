@@ -11,8 +11,9 @@ import { COFFEE_BRANDS } from './coffees.constants';
 import { log } from 'console';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import coffeesConfig from './config/coffees.config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { Coffee as CoffeeDocument } from './schemas/coffee.schema';
 
 // @Injectable({ scope: Scope.TRANSIENT })
 // @Injectable({ scope: Scope.REQUEST })
@@ -30,6 +31,8 @@ export class CoffeesService {
     @Inject(coffeesConfig.KEY)
     private readonly coffeesConfiguration: ConfigType<typeof coffeesConfig>,
     @InjectModel(Coffee.name) private readonly coffeeModel: Model<Coffee>,
+    @InjectConnection() private readonly mongooseConnection: Connection,
+    @InjectModel(Event.name) private readonly eventModel: Model<Event>,
   ) {
     // const coffeesConfig = this.configService.getOrThrow('coffees');
 
@@ -154,6 +157,30 @@ export class CoffeesService {
   async remove(id: number) {
     const coffee = await this.findOne(id);
     return this.coffeeRepository.remove(coffee);
+  }
+
+  async recommendCoffeeMongo(coffee: CoffeeDocument) {
+    const session = await this.mongooseConnection.startSession();
+    session.startTransaction();
+
+    try {
+      coffee.recommendations++;
+
+      const recommendedEvent = new this.eventModel({
+        name: 'recommend_coffee',
+        type: 'coffee',
+        payload: { coffeeId: coffee.id },
+      });
+
+      await recommendedEvent.save({ session });
+      await coffee.save({ session });
+
+      await session.commitTransaction();
+    } catch (e) {
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
   }
 
   async recommendCoffee(coffe: Coffee) {
