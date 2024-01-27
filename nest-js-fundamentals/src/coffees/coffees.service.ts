@@ -43,8 +43,12 @@ export class CoffeesService {
     log('CoffeesService instantiated');
   }
 
-  findAllMongo() {
-    return this.coffeeModel.find().exec();
+  findAllMongo(paginationQuery: PaginationQueryDTO) {
+    return this.coffeeModel
+      .find()
+      .skip(paginationQuery.offset)
+      .limit(paginationQuery.limit)
+      .exec();
   }
 
   findAll(paginationQuery: PaginationQueryDTO) {

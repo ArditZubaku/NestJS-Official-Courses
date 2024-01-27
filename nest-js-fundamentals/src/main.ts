@@ -20,6 +20,7 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transformOptions: {
+        // Instead of using @Type(Function) decorator in DTOs
         // Converts property to TS declared types
         enableImplicitConversion: true,
       },
