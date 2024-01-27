@@ -11,6 +11,8 @@ import { COFFEE_BRANDS } from './coffees.constants';
 import { log } from 'console';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import coffeesConfig from './config/coffees.config';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 // @Injectable({ scope: Scope.TRANSIENT })
 // @Injectable({ scope: Scope.REQUEST })
@@ -27,6 +29,7 @@ export class CoffeesService {
     // Best practice to use partial registration
     @Inject(coffeesConfig.KEY)
     private readonly coffeesConfiguration: ConfigType<typeof coffeesConfig>,
+    @InjectModel(Coffee.name) private readonly coffeeModel: Model<Coffee>,
   ) {
     // const coffeesConfig = this.configService.getOrThrow('coffees');
 
@@ -40,6 +43,10 @@ export class CoffeesService {
     log('CoffeesService instantiated');
   }
 
+  findAllMongo() {
+    return this.coffeeModel.find().exec();
+  }
+
   findAll(paginationQuery: PaginationQueryDTO) {
     const { limit, offset } = paginationQuery;
     return this.coffeeRepository.find({
@@ -49,6 +56,16 @@ export class CoffeesService {
       skip: offset,
       take: limit,
     });
+  }
+
+  async findOneMongo(id: string) {
+    const coffee = await this.coffeeModel.findOne({ _id: id }).exec();
+
+    if (!coffee) {
+      throw new NotFoundException(`Coffee ${id} not found`);
+    }
+
+    return coffee;
   }
 
   async findOne(id: number) {
@@ -66,6 +83,12 @@ export class CoffeesService {
     return coffee;
   }
 
+  createMongo(createCoffeeDTO: Omit<CreateCoffeeDTO, 'flavours'>) {
+    const coffee = new this.coffeeModel(createCoffeeDTO);
+
+    return coffee.save();
+  }
+
   async create(createCoffeeDTO: CreateCoffeeDTO) {
     const flavours = await Promise.all(
       createCoffeeDTO.flavours.map((flavour) =>
@@ -79,6 +102,23 @@ export class CoffeesService {
     });
 
     return this.coffeeRepository.save(coffee);
+  }
+
+  async updateMongo(id: string, updateCoffeeDTO: UpdateCoffeeDTO) {
+    const existingCoffee = await this.coffeeModel
+      .findOneAndUpdate(
+        { _id: id },
+        { $set: updateCoffeeDTO },
+        // Means -> return the newly updated obj
+        { new: true },
+      )
+      .exec();
+
+    if (!existingCoffee) {
+      throw new NotFoundException(`Coffee ${id} not found`);
+    }
+
+    return existingCoffee;
   }
 
   async update(id: number, updateCoffeeDTO: UpdateCoffeeDTO) {
@@ -100,6 +140,11 @@ export class CoffeesService {
       throw new NotFoundException(`Coffee ${id} not found`);
     }
     return this.coffeeRepository.save(coffee);
+  }
+
+  async removeMongo(id: string) {
+    const coffee = await this.findOneMongo(id);
+    return coffee.deleteOne();
   }
 
   async remove(id: number) {
