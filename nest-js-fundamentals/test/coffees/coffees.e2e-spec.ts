@@ -1,12 +1,24 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import appConfig from '../../src/config/app.config';
+import * as request from 'supertest';
+import { CreateCoffeeDTO } from '../../src/coffees/dto/create-coffee.dto';
+import { Flavour } from '../../src/coffees/entities/flavour.entity';
 
 describe('[Feature] Coffees - /coffees', () => {
+  const coffee: CreateCoffeeDTO = {
+    name: 'Espresso',
+    brand: 'Italian Roast',
+    flavours: [
+      { id: 1, name: 'Chocolate', coffees: [] },
+      { id: 2, name: 'Vanilla', coffees: [] },
+    ],
+  };
+
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -38,11 +50,41 @@ describe('[Feature] Coffees - /coffees', () => {
     }).compile();
 
     app = module.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+      }),
+    );
 
     await app.init();
   });
 
-  it.todo('Create [POST /]');
+  it('Create [POST /]', async () => {
+    const { body } = await request(app.getHttpServer())
+      .post('/coffees')
+      .send(coffee as CreateCoffeeDTO)
+      .expect(HttpStatus.CREATED);
+
+    const expectedCoffee = {
+      ...coffee,
+      description: null,
+      id: expect.any(Number),
+      recommendations: 0,
+      test: 0,
+      flavours: expect.arrayContaining(
+        coffee.flavours.map(
+          () =>
+            ({
+              id: expect.any(Number),
+              name: expect.any(String),
+            }) as Flavour,
+        ),
+      ),
+    };
+
+    expect(body).toEqual(expectedCoffee);
+  });
+
   it.todo('Get all [GET /]');
   it.todo('Get one [GET /:id]');
   it.todo('Update one [PATCH /:id]');

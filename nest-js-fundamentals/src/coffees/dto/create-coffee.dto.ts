@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 import { Flavour } from '../entities/flavour.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -11,7 +11,9 @@ export class CreateCoffeeDTO {
   @IsString()
   readonly brand: string;
 
-  @ApiProperty({ description: 'The flavours of a coffee.' })
-  @IsString({ each: true })
+  @ApiProperty({ description: 'The flavours of a coffee.', type: [Flavour] })
+  // @IsString({ each: true })
+  // @Type(() => Flavour)
+  @IsArray()
   readonly flavours: Flavour[];
 }

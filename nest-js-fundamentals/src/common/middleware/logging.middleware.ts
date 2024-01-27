@@ -4,6 +4,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 export class LoggingMiddleware implements NestMiddleware {
   // Handles everything before it reaches the controller, or guard, or pipe or interceptor.
   use(req: any, res: any, next: () => void) {
+    // log(req.body);
     console.time('Request-response time');
     console.log('Middleware');
 

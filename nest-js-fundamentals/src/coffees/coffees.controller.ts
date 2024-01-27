@@ -74,10 +74,13 @@ export class CoffeesController {
     return this.coffeesService.findOne(id);
   }
 
-  @Post()
+  @Post('')
   //   @HttpCode(HttpStatus.GONE)
   create(@Body(ValidationPipe) body: CreateCoffeeDTO) {
     // return body;
+    log('QETU-CONTROLLER');
+    console.log(Array.isArray(body.flavours.at(0)));
+
     console.log(body instanceof CreateCoffeeDTO);
     console.log(body);
 
