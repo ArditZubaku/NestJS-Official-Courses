@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test } from '@nestjs/testing';
 import { CoffeesService } from './coffees.service';
 import { ConfigService, ConfigType } from '@nestjs/config';
@@ -9,12 +8,22 @@ import { Coffee } from './entities/coffee.entity';
 import { Flavour } from './entities/flavour.entity';
 import coffeesConfig from './config/coffees.config';
 import { NotFoundException } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { Coffee as CoffeeModel } from './schemas/coffee.schema';
+import { getModelToken } from '@nestjs/mongoose';
+import { Event } from '../common/events/event.schema';
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+type MockModel<T = any> = Partial<Record<keyof Model<T>, jest.Mock>>;
 
 const createMockRepository = <T = any>(): MockRepository<T> => ({
   findOne: jest.fn(),
   create: jest.fn(),
+});
+
+const createMockModel = <T = any>(): MockModel<T> => ({
+  findOne: jest.fn(),
+  find: jest.fn(),
 });
 
 describe('CoffeesService', () => {
@@ -52,6 +61,18 @@ describe('CoffeesService', () => {
         },
         {
           provide: coffeesConfig.KEY,
+          useValue: {},
+        },
+        {
+          provide: getModelToken(CoffeeModel.name),
+          useValue: createMockModel<CoffeeModel>(),
+        },
+        {
+          provide: getModelToken(Event.name),
+          useValue: createMockModel<Event>(),
+        },
+        {
+          provide: 'DatabaseConnection',
           useValue: {},
         },
       ],

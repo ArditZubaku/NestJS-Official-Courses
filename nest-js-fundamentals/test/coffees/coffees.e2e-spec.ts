@@ -1,13 +1,15 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import appConfig from '../../src/config/app.config';
 import * as request from 'supertest';
 import { CreateCoffeeDTO } from '../../src/coffees/dto/create-coffee.dto';
 import { Flavour } from '../../src/coffees/entities/flavour.entity';
+import { Mongoose } from 'mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 
 describe('[Feature] Coffees - /coffees', () => {
   const coffee: CreateCoffeeDTO = {
@@ -28,7 +30,7 @@ describe('[Feature] Coffees - /coffees', () => {
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: (configService: ConfigService) => ({
+          useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
             type: 'postgres',
             host: configService.getOrThrow('DATABASE_HOST'),
             port: configService.getOrThrow('DATABASE_PORT'),
@@ -46,6 +48,7 @@ describe('[Feature] Coffees - /coffees', () => {
           }),
           load: [appConfig],
         }),
+        MongooseModule.forRoot('mongodb://localhost:27017/nest-course'),
       ],
     }).compile();
 

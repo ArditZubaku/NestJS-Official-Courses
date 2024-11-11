@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { AppService } from './app.service';
 import { CoffeeRatingModule } from './coffee-rating/coffee-rating.module';
@@ -17,7 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService): TypeOrmModuleOptions => {
         // type: 'postgres',
         // host: process.env.DATABASE_HOST,
         // port: +process.env.DATABASE_PORT, // + is for type conversion to number
@@ -29,15 +29,15 @@ import { MongooseModule } from '@nestjs/mongoose';
         return configService.getOrThrow<string>('SQLITE_OR_PG')
           ? sqliteConfig
           : {
-            type: 'postgres',
-            host: configService.getOrThrow('DATABASE_HOST'),
-            port: configService.getOrThrow('DATABASE_PORT'),
-            username: configService.getOrThrow('DATABASE_USER'),
-            password: configService.getOrThrow('DATABASE_PASSWORD'),
-            database: configService.getOrThrow('DATABASE_NAME'),
-            autoLoadEntities: true, // models will be loaded automatically (you don't have to explicitly specify the entities: [] array)
-            synchronize: true, // it will auto create tables based on the entities
-          };
+              type: 'postgres',
+              host: configService.getOrThrow('DATABASE_HOST'),
+              port: configService.getOrThrow('DATABASE_PORT'),
+              username: configService.getOrThrow('DATABASE_USER'),
+              password: configService.getOrThrow('DATABASE_PASSWORD'),
+              database: configService.getOrThrow('DATABASE_NAME'),
+              autoLoadEntities: true, // models will be loaded automatically (you don't have to explicitly specify the entities: [] array)
+              synchronize: true, // it will auto create tables based on the entities
+            };
       },
     }),
     ConfigModule.forRoot({
@@ -75,4 +75,4 @@ import { MongooseModule } from '@nestjs/mongoose';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
