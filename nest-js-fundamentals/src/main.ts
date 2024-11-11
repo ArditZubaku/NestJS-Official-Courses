@@ -9,6 +9,7 @@ import {
   TimeoutInterceptor,
 } from './common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -40,7 +41,16 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
+  //SwaggerModule.setup('api', app, document);
+  app.use(
+    '/reference',
+    apiReference({
+      spec: {
+        content: document,
+      },
+    }),
+  );
+
 
   await app.listen(configService.getOrThrow('PORT'));
   log(
