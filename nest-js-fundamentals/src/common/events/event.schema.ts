@@ -9,7 +9,7 @@ export class Event extends mongoose.Document {
   @Prop({ index: true })
   name: string;
 
-  @Prop(mongoose.Schema.Types.Mixed)
+  @Prop({ type: mongoose.Schema.Types.Mixed })
   payload: Record<string, any>;
 }
 

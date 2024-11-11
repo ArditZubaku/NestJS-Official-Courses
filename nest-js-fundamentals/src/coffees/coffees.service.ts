@@ -54,8 +54,16 @@ export class CoffeesService {
       .exec();
   }
 
-  findAll(paginationQuery: PaginationQueryDTO) {
+  async findAll(paginationQuery: PaginationQueryDTO) {
     const { limit, offset } = paginationQuery;
+    const result = await this.coffeeRepository.query(
+      `SELECT sqlite_version() AS version`,
+    );
+    if (result.length > 0 && result[0].version) {
+      console.log('SQLite Database');
+    } else {
+      console.log('PostgreSQL Database');
+    }
     return this.coffeeRepository.find({
       relations: {
         flavours: true,

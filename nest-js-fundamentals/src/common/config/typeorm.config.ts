@@ -1,8 +1,8 @@
-import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 
 // DataSourceOptions
-export const config: PostgresConnectionOptions = {
+export const pgConfig: PostgresConnectionOptions = {
   type: 'postgres',
   host: 'localhost',
   port: 5555,
@@ -16,5 +16,12 @@ export const config: PostgresConnectionOptions = {
   logging: true,
 };
 
-const dataSource = new DataSource(config);
-export default dataSource;
+export const sqliteConfig: SqliteConnectionOptions = {
+  type: 'sqlite',
+  database: 'db.sqlite',
+  entities: ['dist/**/*.entity.js'],
+  synchronize: true,
+  migrations: ['dist/sqlite/migrations/*.js'],
+  migrationsRun: true,
+  logger: 'debug',
+};
