@@ -12,7 +12,10 @@ import { Response } from 'express';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
 import { SignUpDTO, SignInDTO } from './dto';
+import { Auth } from './decorators/auth.decorator';
+import { AuthType } from './enums/auth-type.enum';
 
+@Auth(AuthType.None)
 @Controller('authentication')
 export class AuthenticationController {
   constructor(
