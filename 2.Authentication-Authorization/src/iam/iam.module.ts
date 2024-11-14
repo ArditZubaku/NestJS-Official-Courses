@@ -8,6 +8,8 @@ import { User } from 'src/users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
 
 @Module({
   imports: [
@@ -20,6 +22,11 @@ import { ConfigModule } from '@nestjs/config';
       provide: HashingService,
       // If we ever want to switch to a different hashing algorithm, we can just switch the implementation here
       useClass: BcryptService,
+    },
+    {
+      // Instead of applying this to each route, we are doing this globally
+      provide: APP_GUARD,
+      useClass: AccessTokenGuard,
     },
     AuthenticationService,
   ],
