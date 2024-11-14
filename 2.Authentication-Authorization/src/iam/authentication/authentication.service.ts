@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,13 +10,19 @@ import { Repository } from 'typeorm';
 import { HashingService } from '../hashing/hashing.service';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { SignInDTO } from './dto/sign-in.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import jwtConfig from '../config/jwt.config';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly hashingService: HashingService,
-  ) {}
+    private readonly jwtService: JwtService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) { }
 
   async signUp(signUpDTO: SignUpDTO) {
     try {
@@ -57,7 +64,18 @@ export class AuthenticationService {
       throw new UnauthorizedException('Wrong password!');
     }
 
-    // TODO:
-    return true;
+    const accessToken = await this.jwtService.signAsync({
+      sub: user.id,
+      email: user.email
+    }, {
+      audience: this.jwtConfiguration.audience,
+      issuer: this.jwtConfiguration.issuer,
+      secret: this.jwtConfiguration.secret,
+      expiresIn: this.jwtConfiguration.accessTokenTTL,
+    })
+
+    return {
+      accessToken
+    }
   }
 }
