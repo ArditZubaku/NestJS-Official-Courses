@@ -8,11 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { HashingService } from '../hashing/hashing.service';
-import { SignUpDTO } from './dto/sign-up.dto';
-import { SignInDTO } from './dto/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
+import { SignUpDTO, SignInDTO } from './dto';
 
 @Injectable()
 export class AuthenticationService {

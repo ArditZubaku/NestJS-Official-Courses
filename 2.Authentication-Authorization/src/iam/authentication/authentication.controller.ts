@@ -8,11 +8,10 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
-import { SignUpDTO } from './dto/sign-up.dto';
-import { SignInDTO } from './dto/sign-in.dto';
 import { Response } from 'express';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
+import { SignUpDTO, SignInDTO } from './dto';
 
 @Controller('authentication')
 export class AuthenticationController {
