@@ -1,11 +1,26 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { SignInDTO } from './dto/sign-in.dto';
+import { Response } from 'express';
+import { ConfigType } from '@nestjs/config';
+import jwtConfig from '../config/jwt.config';
 
 @Controller('authentication')
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(
+    private readonly authenticationService: AuthenticationService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) { }
 
   @Post('sign-up')
   signUp(@Body() signUpDTO: SignUpDTO) {
@@ -15,7 +30,19 @@ export class AuthenticationController {
   // Since by default for a successful operation Nest returns 201, for this case we want 200
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
-  signIn(@Body() signInDTO: SignInDTO) {
-    return this.authenticationService.signIn(signInDTO);
+  async signIn(
+    @Res({ passthrough: true }) response: Response,
+    @Body() signInDTO: SignInDTO,
+  ) {
+    const accessToken = await this.authenticationService.signIn(signInDTO);
+    response.cookie('accessToken', accessToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'strict',
+      /*
+       If your JWT’s TTL is shorter than the cookie’s TTL, the cookie might still be valid in the browser after the JWT has expired, meaning that the client can continue sending a stale token (which will be rejected by your backend), causing unnecessary failed requests. Conversely, if the cookie’s TTL is shorter than the JWT’s TTL, the browser might delete the cookie before the token expires, causing the user to be logged out earlier than intended.
+       */
+      maxAge: this.jwtConfiguration.accessTokenTTL * 1_000
+    });
   }
 }

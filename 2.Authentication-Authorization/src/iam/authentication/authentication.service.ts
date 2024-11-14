@@ -22,7 +22,7 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) { }
+  ) {}
 
   async signUp(signUpDTO: SignUpDTO) {
     try {
@@ -64,18 +64,21 @@ export class AuthenticationService {
       throw new UnauthorizedException('Wrong password!');
     }
 
-    const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
-      email: user.email
-    }, {
-      audience: this.jwtConfiguration.audience,
-      issuer: this.jwtConfiguration.issuer,
-      secret: this.jwtConfiguration.secret,
-      expiresIn: this.jwtConfiguration.accessTokenTTL,
-    })
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        email: user.email,
+      },
+      {
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn: this.jwtConfiguration.accessTokenTTL,
+      },
+    );
 
     return {
-      accessToken
-    }
+      accessToken,
+    };
   }
 }

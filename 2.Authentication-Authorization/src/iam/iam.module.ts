@@ -25,4 +25,4 @@ import { ConfigModule } from '@nestjs/config';
   ],
   controllers: [AuthenticationController],
 })
-export class IamModule { }
+export class IamModule {}
