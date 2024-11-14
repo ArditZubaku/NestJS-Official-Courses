@@ -37,13 +37,26 @@ export class AuthenticationService {
         ),
       );
     } catch (error) {
-      const pgUniquenessViolationErrorCode = '23505';
-      if (error.code === pgUniquenessViolationErrorCode) {
+      // SQLite uses a constraint error with code 'SQLITE_CONSTRAINT' for uniqueness violations
+      const sqliteUniquenessViolationCode = 'SQLITE_CONSTRAINT';
+
+      if (
+        error.code === sqliteUniquenessViolationCode &&
+        error.message.includes('UNIQUE')
+      ) {
         throw new ConflictException();
       }
 
       throw error;
     }
+    //} catch (error) {
+    //const pgUniquenessViolationErrorCode = '23505';
+    //if (error.code === pgUniquenessViolationErrorCode) {
+    //throw new ConflictException();
+    //}
+
+    //throw error;
+    //}
   }
 
   async signIn(signInDTO: SignInDTO) {
