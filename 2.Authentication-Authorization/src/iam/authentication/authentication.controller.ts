@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Inject,
   Post,
   Req,
   Res,
@@ -11,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { Response, Request } from 'express';
-import { ConfigType } from '@nestjs/config';
-import jwtConfig from '../config/jwt.config';
 import { SignUpDTO, SignInDTO, RefreshTokenDTO } from './dto';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
@@ -20,14 +17,10 @@ import { AuthType } from './enums/auth-type.enum';
 @Auth(AuthType.None)
 @Controller('authentication')
 export class AuthenticationController {
-  constructor(
-    private readonly authenticationService: AuthenticationService,
-    @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  constructor(private readonly authenticationService: AuthenticationService) {}
 
   @Post('sign-up')
-  signUp(@Body() signUpDTO: SignUpDTO) {
+  signUp(@Body() signUpDTO: SignUpDTO): Promise<void> {
     return this.authenticationService.signUp(signUpDTO);
   }
 
@@ -37,25 +30,12 @@ export class AuthenticationController {
   async signIn(
     @Res({ passthrough: true }) response: Response,
     @Body() signInDTO: SignInDTO,
-  ) {
+  ): Promise<void> {
     const { accessToken, refreshToken } =
       await this.authenticationService.signIn(signInDTO);
-    response.cookie('accessToken', accessToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-      /*
-       If your JWT’s TTL is shorter than the cookie’s TTL, the cookie might still be valid in the browser after the JWT has expired, meaning that the client can continue sending a stale token (which will be rejected by your backend), causing unnecessary failed requests. Conversely, if the cookie’s TTL is shorter than the JWT’s TTL, the browser might delete the cookie before the token expires, causing the user to be logged out earlier than intended.
-       */
-      maxAge: this.jwtConfiguration.accessTokenTTL * 1_000,
-    });
 
-    response.cookie('refreshToken', refreshToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-      maxAge: this.jwtConfiguration.refreshTokenTTL * 1_000,
-    });
+    // Set cookies in response
+    this.setAuthCookies(response, accessToken, refreshToken);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -63,7 +43,7 @@ export class AuthenticationController {
   async refreshTokens(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-  ) {
+  ): Promise<void> {
     const refreshToken = request.cookies?.['refreshToken'];
 
     if (!refreshToken) {
@@ -71,19 +51,29 @@ export class AuthenticationController {
     }
 
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-      await this.authenticationService.refreshTokens({ refreshToken });
-    response.cookie('refreshToken', newRefreshToken, {
+      await this.authenticationService.refreshTokens(refreshToken);
+
+    this.setAuthCookies(response, newAccessToken, newRefreshToken);
+  }
+
+  private setAuthCookies(
+    response: Response,
+    accessToken: string,
+    refreshToken: string,
+  ): void {
+    response.cookie('accessToken', accessToken, {
       secure: true,
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: this.jwtConfiguration.refreshTokenTTL * 1_000,
+      //If your JWT’s TTL is shorter than the cookie’s TTL, the cookie might still be valid in the browser after the JWT has expired, meaning that the client can continue sending a stale token (which will be rejected by your backend), causing unnecessary failed requests. Conversely, if the cookie’s TTL is shorter than the JWT’s TTL, the browser might delete the cookie before the token expires, causing the user to be logged out earlier than intended.
+      maxAge: this.authenticationService.getAccessTokenTTL() * 1_000,
     });
 
-    response.cookie('accessToken', newAccessToken, {
+    response.cookie('refreshToken', refreshToken, {
       secure: true,
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: this.jwtConfiguration.accessTokenTTL * 1_000,
+      maxAge: this.authenticationService.getRefreshTokenTTL() * 1_000,
     });
   }
 }

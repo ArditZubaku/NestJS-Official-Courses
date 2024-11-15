@@ -11,8 +11,10 @@ import { HashingService } from '../hashing/hashing.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
-import { SignUpDTO, SignInDTO, RefreshTokenDTO } from './dto';
+import { SignUpDTO, SignInDTO } from './dto';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
+import { RefreshTokenIDsStorage } from './refresh-token-ids.storage';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthenticationService {
@@ -22,9 +24,10 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly refreshTokenIDsStorage: RefreshTokenIDsStorage,
   ) {}
 
-  async signUp(signUpDTO: SignUpDTO) {
+  async signUp(signUpDTO: SignUpDTO): Promise<void> {
     try {
       //const user = new User(signUpDTO.email, await this.hashingService.hash(signUpDTO.password));
       //user.email = signUpDTO.email;
@@ -59,7 +62,9 @@ export class AuthenticationService {
     //}
   }
 
-  async signIn(signInDTO: SignInDTO) {
+  async signIn(
+    signInDTO: SignInDTO,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.usersRepository.findOneBy({
       email: signInDTO.email,
     });
@@ -80,35 +85,31 @@ export class AuthenticationService {
     return await this.generateTokens(user);
   }
 
-  public async generateTokens(user: User) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.signToken<Partial<ActiveUserData>>(
-        user.id,
-        this.jwtConfiguration.accessTokenTTL,
-        { email: user.email },
-      ),
-      this.signToken(user.id, this.jwtConfiguration.refreshTokenTTL),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-  u;
-  async refreshTokens(refreshTokenDTO: RefreshTokenDTO) {
+  async refreshTokens(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
-      const { sub } = await this.jwtService.verifyAsync<
-        Pick<ActiveUserData, 'sub'>
-      >(refreshTokenDTO.refreshToken, {
+      const { sub, refreshTokenID } = await this.jwtService.verifyAsync<{
+        sub: number;
+        refreshTokenID: string;
+      }>(refreshToken, {
         secret: this.jwtConfiguration.secret,
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
       });
 
-      const user = await this.usersRepository.findOneByOrFail({
-        id: sub,
-      });
+      const user = await this.usersRepository.findOneByOrFail({ id: sub });
+
+      const isValid = await this.refreshTokenIDsStorage.validate(
+        user.id,
+        refreshTokenID,
+      );
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      // Invalidate the old refresh token
+      await this.refreshTokenIDsStorage.invalidate(user.id);
 
       return this.generateTokens(user);
     } catch (error) {
@@ -116,7 +117,32 @@ export class AuthenticationService {
     }
   }
 
-  private async signToken<T>(userID: number, expiresIn: number, payload?: T) {
+  private async generateTokens(
+    user: User,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const refreshTokenID = randomUUID();
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken<Partial<ActiveUserData>>(
+        user.id,
+        this.jwtConfiguration.accessTokenTTL,
+        { email: user.email },
+      ),
+      this.signToken(user.id, this.jwtConfiguration.refreshTokenTTL, {
+        refreshTokenID,
+      }),
+    ]);
+
+    // Store the refresh token ID
+    await this.refreshTokenIDsStorage.insert(user.id, refreshTokenID);
+
+    return { accessToken, refreshToken };
+  }
+
+  private async signToken<T>(
+    userID: number,
+    expiresIn: number,
+    payload?: T,
+  ): Promise<string> {
     return await this.jwtService.signAsync(
       {
         sub: userID,
@@ -129,5 +155,14 @@ export class AuthenticationService {
         expiresIn,
       },
     );
+  }
+
+  // Helper methods to get TTL values
+  getAccessTokenTTL(): number {
+    return this.jwtConfiguration.accessTokenTTL;
+  }
+
+  getRefreshTokenTTL(): number {
+    return this.jwtConfiguration.refreshTokenTTL;
   }
 }
