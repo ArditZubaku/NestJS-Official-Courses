@@ -13,7 +13,7 @@ import { ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
 import { SignUpDTO, SignInDTO } from './dto';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
-import { RefreshTokenIDsStorage } from './refresh-token-ids.storage';
+import { InvalidatedRefreshTokenError, RefreshTokenIDsStorage } from './refresh-token-ids.storage';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class AuthenticationService {
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly refreshTokenIDsStorage: RefreshTokenIDsStorage,
-  ) {}
+  ) { }
 
   async signUp(signUpDTO: SignUpDTO): Promise<void> {
     try {
@@ -113,6 +113,10 @@ export class AuthenticationService {
 
       return this.generateTokens(user);
     } catch (error) {
+      if (error instanceof InvalidatedRefreshTokenError) {
+        // Take action: notify user that his refresh token might have been stolen?
+        throw new UnauthorizedException('Access Denied');
+      }
       throw new UnauthorizedException();
     }
   }
