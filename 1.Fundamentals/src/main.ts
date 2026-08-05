@@ -51,7 +51,6 @@ async function bootstrap() {
     }),
   );
 
-
   await app.listen(configService.getOrThrow('PORT'));
   log(
     `App is listening on port ${configService.getOrThrow<number>(
